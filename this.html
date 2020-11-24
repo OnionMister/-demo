@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        // JavaScript中的this你更要了解一下
+
+        // 1. 我们在哪里见过this
+        // 函数里(事件，定时器，对象里的函数)
+        // 1. 普通函数
+        // 2. 构造函数
+
+        // 普通函数
+        // var value = 'global';
+        // function show() {
+        //     console.log(this.value);
+        // }
+        // show(); // global this => window window.value global;
+        // // xx.show
+
+        // var obj = {
+        //     value: 'obj',
+        //     show: function () {
+        //         console.log(this.value);
+        //     }
+        // }
+        // var show1 = obj.show;
+        // obj.show(); // obj this => obj obj.value = 'obj'
+        // show1(); // global this => window window.value global;
+
+        // 2. this的特点 
+        // this 可变的，动态的，同一个函数，不同调用方式，this指向不一致。
+        // this 指向规则（铁律）
+        // 1. 谁调用this指向谁
+        // 2. 没有调用者，this指向window
+        // var value = 'window';
+
+        // var obj = {
+        //     value: 'obj',
+        //     getValue: function () {
+        //         console.log(this)// obj
+        //         return function () {
+        //             console.log(this.value);
+        //         }
+        //     },
+        //     getValue1: function () {
+        //         var that = this; // that = this => obj
+        //         // that = obj
+        //         return function () {
+        //             console.log(that.value);
+        //         }
+        //     }
+        // }
+
+        // obj.getValue()(); // window
+        // /*
+        //  var fn = obj.getValue();
+        //  fn(); 没有调用者，this => window
+        // */
+        // // 闭包：在函数中被返回（不一定是return）的函数引用了其他局部作用域的值，这种结构就要闭包。 
+        // // 本应该被释放的变量并没有被释放。
+        // obj.getValue1()(); // obj;
+        /*
+         var fn = obj.getValue1();
+         fn(); 
+        */
+
+
+        // 3. 改变this指向的方式
+        // call apply bind new
+        // call apply  
+        // 在函数执行时候，改变this指向， 参数区别。
+        // call bind
+        // bind: 返回一个带有明确this指向的函数。
+
+        // var obj = {
+        //     name: 'obj',
+        // };
+        // var name = 'window';
+        // function showName(age) {
+        //     // this = obj obj.name;
+        //     console.log(this.name, age);
+        // }
+        // // showName.call(obj);
+        // // showName.call(window);
+        // // Function.prototype.bind(this, arguments1, arguments2, ...)
+        // var showName1 = showName.bind(obj, 18);
+        // // 返回一个新的函数
+        // // 新的函数中this指向obj
+        // // 返回的函数中的this不可以在被改变（call ,apply, bind)
+        // showName1(19);
+
+        // new 
+
+        function Person(name) {
+            this.name = name;
+        }
+        var P = Person.bind(window);
+
+        var p1 = new P('张三');
+
+        var obj1 = {
+            name: "obj1"
+        }
+        var obj2 = {
+            name: 'obj2'
+        }
+        var name = "windows";
+
+        function fun() {
+            var name = "fun";
+            console.log(this.name)
+        }
+        fun();
+        fun.call(obj1)
+        fun.call(obj2)
+        var c = fun.bind(obj1)
+        c()
+        c.call(obj2); // bind返回的函数this不可改变
+        fun.call(obj2)
+
+        var objFun = {
+            name: "objFun",
+            fun: () => {
+                console.log(this)
+                console.log(this.name)
+                return function () {
+                    console.log(this.name);
+                }
+            }
+        }
+        objFun.fun()()
+
+        function funStrict() {
+            "use strict"
+            console.log(this)
+        }
+        funStrict()
+
+        console.group("----------------obj")
+        var obj3 = {
+            name: 'obj3',
+            fun: undefined
+        }
+        var obj4 = {
+            name: 'obj4',
+            fun: function () {
+                console.log(this)
+                console.log(this.name);
+                return () => {
+                    console.log(this.name)
+                }
+            }
+        }
+        obj4.fun()()
+        obj3.fun = obj4.fun()
+        obj3.fun.call(obj3);
+        obj3.fun.bind(obj3);
+        obj3.fun.apply(obj3);
+        var obj5 = {
+            name: "obj5",
+            obj6: {
+                name: 'obj6',
+                fun: function () {
+                    console.log(this.name);
+                },
+                fun2: () => {
+                    console.log(this.name)
+                }
+            }
+        }
+
+        function test() {
+            var name = 'fun'
+            console.group('------prototype')
+
+            function ProObj(name) {
+                this.name = name;
+                this.fun1 = function () {
+                    console.log(this.name);
+                }
+                this.fun2 = () => {
+                    console.log(this.name);
+                }
+            }
+            ProObj.prototype.fun3 = function () {
+                console.log(this.name);
+            }
+            ProObj.prototype.fun4 = () => {
+                console.log(this.name);
+            }
+            var po = new ProObj('ProObj');
+            po.fun1();
+            po.fun2();
+            po.fun3();
+            po.fun4();
+        }
+        test();
+     
+
+    </script>
+</body>
+
+</html>
