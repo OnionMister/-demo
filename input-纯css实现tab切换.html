@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>input-纯css实现tab切换</title>
+    <style>
+        /* 
+         * 整体宽、高均为可视化窗口的一半
+         * 去除默认的padding，margin居中
+         * flex布局为了使li水平平分区域
+         * relative是为了内容相对于它进行定位，因为内容的宽度要铺满，所以不能相对于li定位。
+         */
+        .tab {
+            width: 50vw;
+            height: 50vh;
+            padding: 0;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            position: relative;
+            border: 1px solid #f0f;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        /* 隐藏input，主要利用“:checked”选择器，达到切换目的 */
+        .tab-input {
+            display: none;
+        }
+
+        /* 给选项卡统一背景色 */
+        .tab-item {
+            flex: 1;
+            height: 60px;
+            text-align: center;
+            background: cornflowerblue;
+        }
+
+        /* 选项卡label撑高 */
+        .tab-tit {
+            display: block;
+            width: 100%;
+            height: 100%;
+            line-height: 60px;
+            cursor: pointer;
+        }
+
+        /* 
+         * hover高亮，选中高亮。
+         * “+”代表下一个，div+p：选择所有紧接着<div>元素之后的<p>元素。
+         * “:checked”代表选择每个选中的输入元素
+		 */
+        .tab-tit:hover,
+        .tab-input:checked+.tab-tit {
+            background: #f0f;
+            color: #fff;
+        }
+
+        /* 内容区域默认全隐藏，相对于ul定位*/
+        .tab-content {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            text-align: left;
+            text-indent: 2em;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* 
+         * 选中项内容区域显示
+         * ~：表示某元素之后的每一个某元素。p~ul：选择p元素之后的每一个ul元素
+         */
+        .tab-input:checked~.tab-content {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <ul class="tab">
+        <li class="tab-item">
+            <input type="radio" name="check" id="active1" class="tab-input" checked>
+            <label for="active1" class="tab-tit">第一项</label>
+            <div class="tab-content">
+                内容1
+            </div>
+        </li>
+        <li class="tab-item">
+            <input type="radio" name="check" id="active2" class="tab-input">
+            <label for="active2" class="tab-tit">第二项</label>
+            <div class="tab-content">内容2</div>
+        </li>
+        <li class="tab-item">
+            <input type="radio" name="check" id="active3" class="tab-input">
+            <label for="active3" class="tab-tit">第三项</label>
+            <div class="tab-content">内容3</div>
+        </li>
+        <li class="tab-item">
+            <input type="radio" name="check" id="active4" class="tab-input">
+            <label for="active4" class="tab-tit">第四项</label>
+            <div class="tab-content">内容4</div>
+        </li>
+    </ul>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<!-- https://blog.csdn.net/Kindergarten_Sir/article/details/110368359 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端轻触事件tap</title>
+    <style>
+        .tap {
+            width: 300px;
+            height: 300px;
+            background: #f0f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tap">我是移动端轻触事件</div>
+    <script>
+        // 思路：利用移动端的`touchstart`事件记录时间点，`touchend`触发是使用当前时间减去touchstart记录的时间点，若值小于200且中间未发生touchmove则认为tap事件触发。
+        // 需要注意的是：在touchend执行callback回调的时候，默认this是指向window的，这里可根据需要进行this指向的改变和传递事件对象。此外为了使tap方法可反复触发，应在事件触发后重置必要的参数。
+        const tap = function (e, callback) {
+            // e:事件源dom，callback:执行的方法
+            let move = false,
+                startTime = null;
+            e.addEventListener('touchstart', function () {
+                startTime = Date.now();
+            }, false);
+            e.addEventListener('touchmove', function () {
+                move = true
+            }, false);
+            e.addEventListener('touchend', function (event) {
+                // 不移动且停留时间小于200ms，触发tap
+                if (!move && Date.now() - startTime < 200) {
+                    // 通过apply将this指向dom而不是window，并传递事件对象
+                    callback.apply(this, [event]);
+                }
+                // 重置参数
+                startTime = null;
+                move = false;
+            }, false)
+
+        }
+        tap(document.getElementsByClassName('tap')[0], function (e) {
+            console.log(e)
+            console.log(this)
+            console.log('触发tap事件');
+        });
+    </script>
+</body>
+
+</html>

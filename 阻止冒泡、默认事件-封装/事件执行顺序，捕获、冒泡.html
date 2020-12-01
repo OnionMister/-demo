@@ -1,0 +1,83 @@
+<!-- 不懂看这里：https://blog.csdn.net/Kindergarten_Sir/article/details/109472024 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件执行顺序，捕获、冒泡</title>
+</head>
+<style>
+    .demo1 {
+        width: 300px;
+        height: 300px;
+        background-color: #f00;
+    }
+
+    .demo2 {
+        width: 200px;
+        height: 200px;
+        background-color: #ff0;
+    }
+
+    .demo3 {
+        width: 100px;
+        height: 100px;
+        background-color: #0f0;
+    }
+</style>
+
+<body>
+    <div class="eventOrder">Js事件执行满足“先绑定，先执行”的机制。打开控制台后点我</div>
+    <div class="demo1">
+        <div class="demo2">
+            <div class="demo3">先捕获，后冒泡</div>
+        </div>
+    </div>
+    <script>
+        (function () {
+            // Js事件执行满足“先绑定，先执行”的机制
+            var eventOrder = document.getElementsByClassName('eventOrder')[0];
+            eventOrder.addEventListener('click', function () {
+                console.log('我先绑定')
+            });
+            eventOrder.addEventListener('click', function () {
+                console.log('我后绑定')
+            });
+        }());
+        (function () {
+            // 先捕获，后冒泡
+            var demo1 = document.getElementsByClassName('demo1')[0];
+            var demo2 = document.getElementsByClassName('demo2')[0];
+            var demo3 = document.getElementsByClassName('demo3')[0];
+            // 冒泡-------
+            demo1.addEventListener('click', function () {
+                console.log('bubble demo1')
+            }, false); // false表示冒泡
+            demo2.addEventListener('click', function () {
+                console.log('bubble demo2')
+            }, false);
+            demo3.addEventListener('click', function () {
+                console.log('bubble demo3')
+            }, false);
+            window.addEventListener('click', function () {
+                console.log('bubble window')
+            }, false);
+            // 捕获-------
+            demo1.addEventListener('click', function () {
+                console.log('capture demo1')
+            }, true); // true表示捕获
+            demo2.addEventListener('click', function () {
+                console.log('capture demo2')
+            }, true);
+            demo3.addEventListener('click', function () {
+                console.log('capture demo3')
+            }, true);
+            window.addEventListener('click', function () {
+                console.log('capture window')
+            }, true);
+        }());
+    </script>
+</body>
+
+</html>
