@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object.create()的实现</title>
+</head>
+
+<body>
+    <script>
+        // 详情了解：https://blog.csdn.net/Kindergarten_Sir/article/details/110454939
+        // Object.create(对象参数) 作用：创建一个空对象，其__proto__指向【对象参数】
+        // 根据功能可以代码直译，实现如下：
+        Object.myCreate = function (obj) {
+            let emptyObj = {};
+            // 但是__proto__在IE下已被禁用，兼容性不好，所以我们要想其他方法
+            emptyObj.__proto__ = obj;
+            return emptyObj;
+        }
+        console.log(Object.myCreate({
+            name: "李四"
+        }));
+        // 使用空方法原型挂在目标对象，做实例化
+        // 知识点1：空方法实例化可以创建空对象
+        // 知识点2：方法的原型等价于实例化后的对象的原型链，即 (方法).prototype = (实例对象).__proto__
+        Object.myCreate1=function(obj){
+            function Fun(){}
+            Fun.prototype=obj;
+            return new Fun();
+        }
+    </script>
+</body>
+
+</html>

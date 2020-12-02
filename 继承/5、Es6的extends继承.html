@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Es6的extends继承</title>
+</head>
+
+<body>
+    <script>
+        /*
+         * Es6中class通过extends继承
+         * 特点：
+         *      1.没有原型,内部的属性继承后都是私有的，sayHello方法是挂载在原型链上公有的。
+         */
+        class Person {
+            constructor(name) {
+                this.name = name
+            }
+            sayHello() {
+                console.log(`Hello, I'm ${this.name}`);
+            }
+        }
+        class Male extends Person {
+            constructor(sex, name) {
+                // 类经过继承之后如果要写constructor()就必须写super()
+                // super(name)相当于【寄生组合继承】中Person.call(this,name);
+                super(name);
+                this.sex = sex;
+            }
+            sayBye() {
+                console.log(`Bye-Bye, I'm ${this.name}, ${this.sex}`);
+            }
+        }
+        const ls = new Male("男", "李四");
+    </script>
+</body>
+
+</html>

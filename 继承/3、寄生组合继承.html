@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原型继承</title>
+</head>
+
+<body>
+    <script>
+        /*
+         * 寄生组合继承（推荐）
+         * 特点： 
+         *     1.父类私有、公有属性或方法的子类对应的私有、公有属性或方法
+         */
+        function Person(name) {
+            this.name = name;
+        }
+        Person.prototype.sayHello = function () {
+            console.log(`Hello, I'm ${this.name}`);
+        }
+
+        function Male(sex, name) {
+            // 这里的this指向的是Male实例化后的对象，这是this在构造函数中的特性，可理解为：ls.name=name;
+            // 如果你对call、apply、bind还不了解可以看这里：https://blog.csdn.net/Kindergarten_Sir/article/details/109965268
+            Person.call(this, name);
+            this.sex = sex;
+        }
+        // Object.create(对象参数) 作用：创建一个空对象，其__proto__指向【对象参数】。
+        // Object.create(对象参数) 更多详情、重写看这里：https://blog.csdn.net/Kindergarten_Sir/article/details/110454939
+        Male.prototype = Object.create(Person.prototype);
+        // 手动为Male添加构造函数
+        Male.constructor = Male;
+        Male.prototype.sayBye = function () {
+            console.log(`Bye-Bye, I'm ${this.name}, ${this.sex}`);
+        }
+        let ls = new Male("男", "李四");
+        ls.sayBye();
+        ls.sayHello();
+    </script>
+</body>
+
+</html>

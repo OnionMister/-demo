@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原型继承</title>
+</head>
+
+<body>
+    <script>
+        /*
+         * call继承：父类在子类内以普通函数的方式调用，并通过call/apply/bind改变this指向
+         * 特点： 
+         *     1.解决了原型继承将私有属性、方法公有化的问题。
+         *     2.却导致只能继承私有属性和方法，不能技能原型链，因为这里把父类当作普通方法调用。
+         */
+        function Person(name) {
+            this.name = name;
+        }
+        Person.prototype.sayHello = function () {
+            console.log(`Hello, I'm ${this.name}`);
+        }
+
+        function Male(sex, name) {
+            // 这里的this指向的是Male实例化后的对象，这是this在构造函数中的特性，可理解为：ls.name=name;
+            // 如果你对call、apply、bind还不了解可以看这里：https://blog.csdn.net/Kindergarten_Sir/article/details/109965268
+            Person.call(this, name);
+            this.sex = sex;
+        }
+        Male.prototype.sayBye = function () {
+            console.log(`Bye-Bye, I'm ${this.name}, ${this.sex}`);
+        }
+        let ls = new Male("男", "李四");
+        ls.sayBye();
+    </script>
+</body>
+
+</html>

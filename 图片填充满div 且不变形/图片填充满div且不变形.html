@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片填充满div且不变形</title>
+    <style>
+        div {
+            width: 300px;
+            height: 200px;
+            border: 2px solid #f0f;
+        }
+
+        img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>已知父级盒子的宽高，子级img宽高未知，让img铺满父级且图片不变形</h1>
+    <a href="https://blog.csdn.net/Kindergarten_Sir/article/details/110469875">更多object-fit属性</a>
+    <div>
+        <img src="./picture.png" alt="图片" />
+    </div>
+</body>
+
+</html>

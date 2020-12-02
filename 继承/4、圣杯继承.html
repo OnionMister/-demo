@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圣杯继承</title>
+</head>
+
+<body>
+    <script>
+        /*
+         * 圣杯模式
+         * 特点：
+         *      1.不能继承父类内不的属性或方法，只能继承父类原型链上的属性或方法
+         *      2.各个子类继承的属性或方法是彼此独立的。
+         *          比如：c1或c2 都继承了父类P的name属性，c1修改name不会影响c2的name
+        */
+        // 父类
+        function Person() {}
+        Person.prototype.sayHello = function () {
+            console.log(`Hello, I'm ${this.name}`);
+        }
+        var obj = {
+            name: '',
+            setName: function (name) {
+                this.name = name
+            },
+            getName: function () {
+                return this.name;
+            }
+        }
+        // Object.assign(目标对象,源对象) 作用：将源对象浅拷贝到目标对象中，返回目标对象
+        // 语法：Object.assign(目标对象,源对象)，值返回目标对象
+        Object.assign(Person.prototype, obj)
+
+        function Male(sex) {
+            this.sex = sex;
+        }
+        const inherit = function (Target, Origin) {
+            const Fun = function () {}
+            // 使用空方法原型挂在目标对象，做实例化
+            // 知识点1：空方法实例化可以创建空对象
+            Fun.prototype = Origin.prototype
+            Target.prototype = new Fun();
+            // Target原型被覆盖，导致constructor丢失，所以手动挂载一个
+            Target.prototype.constructor = Target;
+            // uber用于标记继承自谁，可以不加，防止以后有用。
+            Target.prototype.uber = Origin.prototype;
+        }
+        inherit(Male, Person);
+        var m = new Male('男');
+        // 示例m有name、sex、setName()、getName()、sayHello()属性及方法
+
+        // --------------- 雅虎的YUI3封装的
+        const inherit1 = (function () {
+            const F = function () {};
+            return function (Target, Origin) {
+                Fun.prototype = Origin.prototype
+                Target.prototype = new Fun();
+                Target.prototype.constructor = Target;
+                Target.prototype.uber = Origin.prototype;
+            }
+        }())
+    </script>
+</body>
+
+</html>

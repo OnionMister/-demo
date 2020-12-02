@@ -1,0 +1,174 @@
+<!-- https://blog.csdn.net/Kindergarten_Sir/article/details/110386626 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件委托</title>
+</head>
+
+<body>
+    <!-- 示例1 -->
+    <h3>事件相同，操作相同(控制台)</h3>
+    <ul id='demo1'>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ul>
+    <hr>
+    <h3>对子元素添加事件后，新增的子元素在不委托的情况下事件不会添加(控制台)</h3>
+    <div>
+        <input type="button" value='添加li' onclick="addLi()" />
+        <ul id='demo2'>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+        </ul>
+    </div>
+    <hr>
+    <h3>子元素事件相同，但操作内容不同，使用事件源上的属性辨别是谁的操作(控制台)</h3>
+    <div id="demo3">
+        <input type="button" id='add' value="添加">
+        <input type="button" id='modify' value="修改">
+        <input type="button" id='del' value="删除">
+    </div>
+    <hr>
+    <h3>多层嵌套，对某一层绑定事件。这里是对li绑定事件(控制台)</h3>
+    <ul id="demo4">
+        <li>
+            <p>我是ul下的li下的p标签</p>
+        </li>
+        <li>
+            <a href="https://blog.csdn.net/Kindergarten_Sir">我是ul下的li下的a标签</a>
+        </li>
+        <li>
+            <div>我是ul下的li下的div标签</div>
+        </li>
+        <li>我是ul下的li标签</li>
+    </ul>
+    <script>
+        /*
+         * 示例1
+         * 事件相同，操作相同
+         */
+        var domUl1 = document.getElementById('demo1');
+        var domLi = domUl1.getElementsByTagName('li');
+        // 不委托------------
+        for (var i = 0; i < domLi.length; i++) {
+            // domLi[i].addEventListener('click', function () {
+            //     console.log('闭包，i全为5', i, domLi[i]);
+            // })
+            // (function (j) {
+            //     domLi[j].addEventListener('click', function () {
+            //         console.log('利用闭包，全部输出理想数据', domLi[j]);
+            //     })
+            // }(i))
+            domLi[i].onclick = function (e) {
+                console.log('不委托', i);
+            }
+        }
+        // 委托------------
+        domUl1.onclick = function (event) {
+            var event = event || window.event; // 事件对象，保证低版本ie兼容性
+            var target = event.target || event.srcElement; // 事件源，保证低版本ie兼容性
+            console.log('委托', target.innerHTML)
+        }
+
+        /*
+         * 示例2
+         * 对子元素添加事件后，新增的子元素在不委托的情况下事件不会添加
+         */
+        var domUl2 = document.getElementById('demo2');
+        var domLi2 = domUl2.getElementsByTagName('li');
+        var n = 5;
+        // 不委托------------
+        // 鼠标移入值加1，移出值减1
+        for (var i = 0; i < domLi2.length; i++) {
+            domLi2[i].onmouseover = function (e) {
+                // this指向触发方法的dom
+                this.innerHTML++;
+            };
+            domLi2[i].onmouseout = function (e) {
+                // this指向触发方法的dom
+                this.innerHTML--;
+            }
+        }
+        // 添加新i
+        function addLi() {
+            var domLiItem = document.createElement('li');
+            domLiItem.innerHTML = ++n;
+            domUl2.appendChild(domLiItem);
+        }
+        // 委托------------
+        domUl2.onmouseover = function (event) {
+            var event = event || window.event; // 事件对象，保证低版本ie兼容性
+            var target = event.target || event.srcElement; // 事件源，保证低版本ie兼容性
+            if (target.nodeName === "LI") { // nodeName判断节点具体时什么元素
+                target.innerHTML++;
+            }
+        }
+        domUl2.onmouseout = function (event) {
+            var event = event || window.event; // 事件对象，保证低版本ie兼容性
+            var target = event.target || event.srcElement; // 事件源，保证低版本ie兼容性
+            if (target.nodeName === "LI") { // nodeName判断节点具体时什么元素
+                target.innerHTML--;
+            }
+        }
+
+        /*
+         * 示例3
+         * 子元素事件相同，但操作内容不同，使用事件源上的属性辨别是谁的操作
+         */
+        var demo3 = document.getElementById("demo3");
+        var add = document.getElementById("add");
+        var modify = document.getElementById("modify");
+        var del = document.getElementById("del");
+        // 不委托------------
+        add.onclick = function () {
+            console.log('add');
+        };
+        modify.onclick = function () {
+            console.log('modify');
+        };
+        del.onclick = function () {
+            console.log('del');
+        };
+        // 委托------------
+        demo3.onclick = function (event) {
+            var event = event || window.event;
+            var target = event.target || event.srcElement
+            switch (target.id) {
+                case 'add':
+                    console.log('add');
+                    break;
+                case 'modify':
+                    console.log('modify');
+                    break;
+                case 'del':
+                    console.log('del');
+                    break;
+            }
+        }
+        /*
+         * 示例4
+         * 多层嵌套，对某一层绑定事件。这里是对li绑定事件
+         */
+        var demo4 = document.getElementById("demo4");
+        demo4.onclick = function (event) {
+            var event = event || window.event; // 事件对象，兼容低版本ie
+            var target = event.target || event.srcElement; // 事件源，兼容低版本ie
+            event.preventDefault();
+            while (target.nodeName !== 'LI') {
+                target = target.parentNode; // 父级
+            }
+            console.log('我是li');
+        }
+    </script>
+</body>
+
+</html>

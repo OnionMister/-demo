@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>原型继承</title>
+</head>
+
+<body>
+    <script>
+        /*
+         * 原型继承：子类原型指向父类实例
+         *     Child.prototype = new Parent();  // 子类原型指向父类实例
+         *     Child.prototype.constructor = Child;   // 子类原型种的constructor被覆盖丢失，手动添加constructor
+         * 特点： 
+         *     1.像是查找式继承，核心是依赖于原型链。当子类实例使用某属性或方法时，会先查找自身是否存在，若不存在，会顺着原型链向上查找，找到后就是用。
+         *     2.子类可以通过【prototype.__protp__.某方法或某属性】去直接改变或新增父类的方法或属性，这样会影响父类的其他实例。
+         *       例如：存在父类P，子类C1和C2继承P，执行【C1.prototype.__protp__.age=18】直接修改原型链上的age，导致继承于P的C2所使用的age也发生了改变。
+         *     3.父类的私有属性、方法会变成子类的公有属性、方法。
+         *       例如本例中的name，是Person中私有属性，但使用原型继承后，子类实例化多个对象后，如果它们使用name，那么大家彼此是共用name的。
+         */
+        function Person(name) {
+            this.name = name;
+        }
+        Person.prototype.sayHello = function () {
+            console.log(`Hello, I'm ${this.name}`);
+        }
+
+        function Male(sex) {
+            this.sex = sex;
+        }
+        // Male的原型指向Person的实例，以实现继承，这种方式会造成Male原型的constructor丢失
+        Male.prototype = new Person("李四");
+        // 手动为Male添加构造函数
+        Male.prototype.constructor = Male;
+        Male.prototype.sayBye = function () {
+            console.log(`Bye-Bye, I'm ${this.name}, ${this.sex}`);
+        }
+        let ls = new Male("男");
+        ls.sayHello();
+        ls.sayBye();
+        
+    </script>
+</body>
+
+</html>
