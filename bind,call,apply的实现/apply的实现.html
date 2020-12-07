@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>apply的实现</title>
+</head>
+
+<body>
+    <h1>查看源码和console</h1>
+    <a href="https://github.com/OnionMister/-demo.git" target="_blank">git地址点这里</a>
+    <ul>
+        <li>
+            apply特点：
+            <ol>
+                <li>传递的第一个参数做为调用它的函数的this指向</li>
+                <li>若第一个参数传递基础数据类型，则调用他的函数的this指向该基础数据类型的包装类实例化对象</li>
+                <li>若第一个参数为null或undefined，则调用他的函数的this指向window</li>
+                <li>apply的第二个参数为调用它的函数的【参数数组列表】</li>
+                <li>apply方法会使调用他的函数立即执行</li>
+            </ol>
+        </li>
+    </ul>
+    <script>
+        /* 自定义myApply内部实现核心：
+                1.myApply内部将【第一个参数（this将指向的对象）】身上【添加了一个方法】，【添加的方法】就是【调用myApply的方法】。
+                2.如果传递了2个参数，应该把第2个参数当作【添加的方法】的参数。
+                3.然后用这种方式执【添加的方法】：【第一个参数.添加的方法】。并保存他的返回值。
+                4.执行完【添加的方法】后要删除【添加的方法】。
+                5.返回执行【添加的方法】后保存的返回值。
+                细节：js内置apply不传参数或第一个参数传undefined，null时this应该是指向window的;如果第一个参数传入基础数据类型，this应该指向其包装类，这里我们不考虑传递基础数据类型的情况
+        */
+        // apply 的实现原理--知识点
+        // 1.要清楚普通函数的this指向题：【谁调用只想谁，比如：对象调用方法，方法的this指向对象】，apply的实现也是利用了这一点。
+        // 2.实现apply我们就要把自己定义的myApply挂到Function的原型prototype上，这样所有的方法就都可以使用了。
+        // 3.对象传递是引用传递
+        // 前两点结合到一起，我们测试一下：
+        (function () {
+            // 知识点第二点，挂到原型上
+            Function.prototype.myApply = function () {
+                console.log(this); // 打印一下this，看看方法调用的时候this指向谁。
+            }
+            // 定义一个使用myApply的函数。
+            function test() {}
+            console.group("myApply中的this指向（指向调用myApply方法的函数）")
+            test.myApply(); // 输出结果：ƒ test() {} 。
+            // 原因就是知识点1，test调用了myApply，所以myApply的this指向了test。
+            // 在真是放些apply时也是利用了这一点，把this赋给this将指向的对象里的一个属性，实质是把this原本的方法赋值到了对象的属性上，然后用对象调用属性方法执行，这时属性方法内部的this就指向了这个对象，而属性方法本身就是调用apply时的那个方法。
+            console.groupEnd();
+        }());
+
+
+        // apply的具体实现myApply测试------------------------
+        (function () {
+            // 用于改变函数this的对象
+            const obj = {
+                name: '张三'
+            };
+            // 带有返回值的测试函数
+            function sayHello(age, sex) {
+                console.log(`Hello ${this.name},age:${age},sex:${sex}`);
+                return {
+                    name: this.name,
+                    age: age,
+                    sex: sex
+                }
+            }
+            Function.prototype.myApply = function (obj, arr) {
+                // 拿到obj，如果obj隐式转换是false，那么取window
+                const object = obj || window;
+                object.fun = this; // 上面已经测试过，this指向的是调用myApply方法的函数，这相当于在对象里创建了一个叫fun的函数，函数体是调用myApply方法的函数
+                let result; // 用于后续获取函数的返回值
+                if (arr) {
+                    // 如果有参数，则将参数解构当作方法的参数
+                    // 执行通过this绑定的方法，并拿到返回值，因为函数有可能会有返回值，所以需要接收。这里方法里的this已经指向object了，不明白可以看上面的测试结果说明。
+                    result = object.fun(...arr);
+                } else {
+                    result = object.fun();
+                }
+                delete object.fun; //  知识点3，对象是引用传递，我们不能改变传进来的参数，所以我们要从传进来的参数身上把我们通过this绑定的方法删除掉。
+                return result; // 返回执行函数的结果。
+            }
+            console.group('apply的具体实现测试');
+            console.group('不传参数');
+            console.group('自定义myApply使用后的结果');
+            console.log(sayHello.myApply())
+            console.groupEnd();
+            console.group('js内置apply使用后的结果');
+            console.log(sayHello.apply())
+            console.groupEnd();
+            console.groupEnd();
+            console.group('传(undefined,[ 18, "男"])');
+            console.group('自定义myApply使用后的结果');
+            console.log(sayHello.myApply(undefined, [18, "男"]))
+            console.groupEnd();
+            console.group('js内置apply使用后的结果');
+            console.log(sayHello.apply(undefined, [18, "男"]))
+            console.groupEnd();
+            console.groupEnd();
+            console.group('传(null, [18, "男"])');
+            console.group('自定义myApply使用后的结果');
+            console.log(sayHello.myApply(null, [18, "男"]))
+            console.groupEnd();
+            console.group('js内置apply使用后的结果');
+            console.log(sayHello.apply(null, [18, "男"]))
+            console.groupEnd();
+            console.groupEnd();
+            console.group('传(obj, [18, "男"])');
+            console.group('自定义myApply使用后的结果');
+            console.log(sayHello.myApply(obj, [18, "男"]))
+            console.groupEnd();
+            console.group('js内置apply使用后的结果');
+            console.log(sayHello.apply(obj, [18, "男"]))
+            console.groupEnd();
+            console.groupEnd();
+        }());
+    </script>
+</body>
+
+</html>

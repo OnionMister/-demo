@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>call的实现</title>
+</head>
+
+<body>
+    <h1>查看源码和console</h1>
+    <a href="https://github.com/OnionMister/-demo.git" target="_blank">git地址点这里</a>
+    <ul>
+        <li>
+            call特点：
+            <ol>
+                <li>传递的第一个参数做为调用它的函数的this指向</li>
+                <li>若第一个参数传递基础数据类型，则调用他的函数的this指向该基础数据类型的包装类实例化对象</li>
+                <li>若第一个参数为null或undefined，则调用他的函数的this指向window</li>
+                <li>call的第二个之后的参数为调用它的函数的参数列表</li>
+                <li>call方法会使调用他的函数立即执行</li>
+            </ol>
+        </li>
+    </ul>
+    <script>
+        /* 自定义myCall内部实现核心：
+                1.myCall内部将【第一个参数（this将指向的对象）】身上【添加了一个方法】，【添加的方法】就是【调用myCall的方法】。
+                2.如果传递了多个参数，应该把除了第一个参数以外的参数当作【添加的方法】的参数。
+                3.然后用这种方式执【添加的方法】：【第一个参数.添加的方法】。并保存他的返回值。
+                4.执行完【添加的方法】后要删除【添加的方法】。
+                5.返回执行【添加的方法】后保存的返回值。
+                细节：js内置call不传参数或第一个参数传undefined，null时this应该是指向window的;如果第一个参数传入基础数据类型，this应该指向其包装类，这里我们不考虑传递基础数据类型的情况
+        */
+        // call 的实现原理--知识点
+        // 1.要清楚普通函数的this指向题：【谁调用只想谁，比如：对象调用方法，方法的this指向对象】，call的实现也是利用了这一点。
+        // 2.实现call我们就要把自己定义的myCall挂到Function的原型prototype上，这样所有的方法就都可以使用了。
+        // 3.对象传递是引用传递
+        // 前两点结合到一起，我们测试一下：
+        (function () {
+            // 知识点第二点，挂到原型上
+            Function.prototype.myCall = function () {
+                console.log(this); // 打印一下this，看看方法调用的时候this指向谁。
+            }
+            // 定义一个使用myCall的函数。
+            function test() {}
+            console.group("myCall中的this指向（指向调用myCall方法的函数）")
+            test.myCall(); // 输出结果：ƒ test() {} 。
+            // 原因就是知识点1，test调用了myCall，所以myCall的this指向了test。
+            // 在真是放些call时也是利用了这一点，把this赋给this将指向的对象里的一个属性，实质是把this原本的方法赋值到了对象的属性上，然后用对象调用属性方法执行，这时属性方法内部的this就指向了这个对象，而属性方法本身就是调用call时的那个方法。
+            console.groupEnd();
+        }());
+
+
+        // call的具体实现myCall测试------------------------
+        (function () {
+            const obj = {
+                name: '张三'
+            };
+
+            function sayHello(age, sex) {
+                console.log(`Hello ${this.name},age:${age},sex:${sex}`);
+                return {
+                    name: this.name,
+                    age: age,
+                    sex: sex
+                }
+            }
+            Function.prototype.myCall = function (obj) {
+                // 拿到obj，如果obj隐式转换是false，那么取window
+                const object = obj || window;
+                object.fun = this; // 上面已经测试过，this指向的是调用myCall方法的函数，这相当于在对象里创建了一个叫fun的函数，函数体是调用myCall方法的函数
+                // const arg = Array.prototype.slice.apply(arguments, [1]);  // 截取arguments参数列表除第一个以外的参数，与下面es6方法效果相同
+                const [, ...arg] = arguments; // arguments是参数列表，这是es6的解构语法，拿到除第一个参数以外的参数
+                // 执行通过this绑定的方法，并拿到返回值，因为函数有可能会有返回值，所以需要接收。这里方法里的this已经指向object了，不明白可以看上面的测试结果说明。
+                const result = object.fun(...arg);
+                delete object.fun; //  知识点3，对象是引用传递，我们不能改变传进来的参数，所以我们要从传进来的参数身上把我们通过this绑定的方法删除掉。
+                return result; // 返回执行函数的结果。
+            }
+            console.group('call的具体实现测试');
+            console.group('不传参数');
+            console.group('自定义myCall使用后的结果');
+            console.log(sayHello.myCall())
+            console.groupEnd();
+            console.group('js内置call使用后的结果');
+            console.log(sayHello.call())
+            console.groupEnd();
+            console.groupEnd();
+            console.group('传(undefined, 18, "男")');
+            console.group('自定义myCall使用后的结果');
+            console.log(sayHello.myCall(undefined, 18, "男"))
+            console.groupEnd();
+            console.group('js内置call使用后的结果');
+            console.log(sayHello.call(undefined, 18, "男"))
+            console.groupEnd();
+            console.groupEnd();
+            console.group('传(null, 18, "男")');
+            console.group('自定义myCall使用后的结果');
+            console.log(sayHello.myCall(null, 18, "男"))
+            console.groupEnd();
+            console.group('js内置call使用后的结果');
+            console.log(sayHello.call(null, 18, "男"))
+            console.groupEnd();
+            console.groupEnd();
+            console.group('传(obj, 18, "男")');
+            console.group('自定义myCall使用后的结果');
+            console.log(sayHello.myCall(obj, 18, "男"))
+            console.groupEnd();
+            console.group('js内置call使用后的结果');
+            console.log(sayHello.call(obj, 18, "男"))
+            console.groupEnd();
+            console.groupEnd();
+        }());
+    </script>
+</body>
+
+</html>

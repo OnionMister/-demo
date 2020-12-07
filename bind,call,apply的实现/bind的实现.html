@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bind的实现</title>
+</head>
+
+<body>
+    <h1>查看源码和console</h1>
+    <a href="https://github.com/OnionMister/-demo.git" target="_blank">git地址点这里</a>
+    <ul>
+        <li>
+            bind特点：
+            <ol>
+                <li>传递的第一个参数做为调用它的函数的this指向</li>
+                <li>若第一个参数传递基础数据类型，则调用他的函数的this指向该基础数据类型的包装类实例化对象</li>
+                <li>若第一个参数为null或undefined，则调用他的函数的this指向window</li>
+                <li>bind的第二个之后的参数为调用它的函数的参数列表</li>
+                <li>bind方法会返回一个新的方法，并且该方法满足柯里化，仍可以传递参数，但这个方法的this不可被call、apply、bind改变。</li>
+                <li>bind方法返回的新方法，如果使用new实例化，那么原本通过bind绑定的this指向的对象会失效，this将指向到新实例化的对象上，且可以使用原方法原型链上的属性或方法。
+                </li>
+            </ol>
+        </li>
+    </ul>
+    <script>
+        (function () {
+            console.group('初步测试myBind方法和Bind方法对比（对返回方法进行new实例化未实现）');
+            // this将指向的对象
+            const obj = {
+                name: '我是obj'
+            }
+            // 测试方法
+            function sayHello(age, sex, hobby) {
+                this.hobby = hobby
+                console.log("我的this指向：", this);
+                console.log(`Hello, ${this.name}, age: ${age}, sex: ${sex}, hobby: ${hobby}`);
+            }
+            // 测试方法的原型上的属性
+            sayHello.prototype.fater = '我爸是Function';
+            // 使用原bind方法
+            const fun = sayHello.bind(obj, 32, 'male');
+            console.group('原bind');
+            // 实例化原bind方法返回的函数
+            const f = new fun('female');
+            // 输出【测试方法sayHello】的原型上的属性
+            console.log('原bind返回方法实例化后使用【测试方法sayHello】的原型上的属性：', f.fater);
+            console.groupEnd();
+            // 初步模拟方法bind方法--------------
+            Function.prototype.myBind = function (object) {
+                // 记录this，后需返回普通方法后，this指向调用者，更多关于this可以看这里：https://blog.csdn.net/Kindergarten_Sir/article/details/109909886
+                const that = this;
+                // const arg = Array.prototype.slice.apply(arguments, [1]);  // 截取arguments参数列表除第一个以外的参数，与下面es6方法效果相同
+                const [, ...arg] = arguments; // arguments是参数列表，这是es6的解构语法，拿到除第一个参数以外的参数
+                return function () {
+                    // 下面的arguments是返回的这个方法的arguments，这主要是为了模拟【原bind返回方法可传参】
+                    that.apply(object, [...arg, ...arguments]);
+                }
+            }
+            // 使用自定义myBind
+            const newFun = sayHello.myBind(obj, 32, 'male');
+            console.group('自定义myBind');
+            // 实例化自定义myBind方法返回的函数
+            var nf = new newFun('female');
+            console.log('自定义myBind返回方法实例化后使用【测试方法sayHello】的原型上的属性：', nf.fater)
+            console.groupEnd();
+            console.groupEnd();
+        }());
+        // 完善myBind--------------------
+        (function () {
+            // 完善核心：
+            // 1、之前内部返回的方法是普通函数，所以this满足谁定义指向是的特点，所以可以使用instanceof检测有没有使用new。（**instanceof用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链**）
+            // 2、将内部返回的函数变为具名函数，且将返回函数的原型指向原函数的原型。
+            console.group('完善之前myBind和bind返回方法new后this指向不同的问题');
+            // this将指向的对象
+            const obj = {
+                name: '我是obj'
+            }
+            // 测试方法
+            function sayHello(age, sex, hobby) {
+                this.hobby = hobby
+                console.log("我的this指向：", this);
+                console.log(`Hello, ${this.name}, age: ${age}, sex: ${sex}, hobby: ${hobby}`);
+            }
+            // 测试方法的原型上的属性
+            sayHello.prototype.fater = '我爸是Function';
+            // 使用原bind方法
+            const fun = sayHello.bind(obj, 32, 'male');
+            console.group('原bind');
+            // 实例化原bind方法返回的函数
+            const f = new fun('female');
+            // 输出【测试方法sayHello】的原型上的属性
+            console.log('原bind返回方法实例化后使用【测试方法sayHello】的原型上的属性：', f.fater);
+            console.groupEnd();
+            // 完善模拟方法bind方法--------------
+            Function.prototype.myBind = function (object) {
+                // 记录this，后需返回普通方法后，this指向调用者，更多关于this可以看这里：https://blog.csdn.net/Kindergarten_Sir/article/details/109909886
+                // 这里的this是调用myBind方法的函数。
+                const that = this;
+                // const arg = Array.prototype.slice.apply(arguments, [1]);  // 截取arguments参数列表除第一个以外的参数，与下面es6方法效果相同
+                const [, ...arg] = arguments; // arguments是参数列表，这是es6的解构语法，拿到除第一个参数以外的参数
+                const newFun = function () {
+                    // 普通函数this满足谁定义指向是的特点，所以可以使用instanceof检测有没有使用new。
+                    // 如果是使用new实例化，则this指向新的实例化对象，这里的this本身就满足谁调用指向谁的特点，所以直接传递this就指向了实例化后的对象
+                    // 如果不是使用new实例化的，那么就要将函数的this指向到通过myBind传递的对象上。
+                    // 下面的arguments是返回的这个方法的arguments，这主要是为了模拟【原bind返回方法可传参】
+                    that.apply((this instanceof newFun) ? this : object, [...arg, ...arguments]);
+                }
+                // 将内部返回的函数变为具名函数，且将返回函数的原型指向原函数的原型。
+                newFun.prototype = that.prototype;
+                // 返回方法
+                return newFun
+            }
+            // 使用自定义myBind
+            const newFun = sayHello.myBind(obj, 18, 'male');
+            console.group('自定义myBind');
+            // 实例化自定义myBind方法返回的函数
+            var nf = new newFun('female');
+            console.log('自定义myBind返回方法实例化后使用【测试方法sayHello】的原型上的属性：', nf.fater)
+            console.groupEnd();
+            console.groupEnd();
+        }());
+    </script>
+</body>
+
+</html>
