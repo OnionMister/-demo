@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合并数组、去重、取出偶数</title>
+</head>
+
+<body>
+    <script>
+        function fun(arr1, arr2) {
+            if (arr1 instanceof Array && arr2 instanceof Array) {
+                // 链接
+                const arr = arr1.concat(arr2);
+                // 去重  更多去重方法看这里：
+                const noRepeatArr = arr.filter((ele, index) => arr.indexOf(ele) == index);
+                // 取偶
+                const oArr = noRepeatArr.filter(ele => !(ele % 2))
+                // 排序(升序)  sort()会改变原数组，所以浅拷贝一下。
+                const sortOArr = JSON.parse(JSON.stringify(oArr)).sort((a, b) => a - b);
+                return [arr, noRepeatArr, oArr, sortOArr];
+            }
+        }
+        const arr1 = [4, 1, 3, 9, 6, 2],
+            arr2 = [8, 5, 3, 2, 1, 4, 7];
+        console.log(arr1, arr2, fun(arr1, arr2));
+    </script>
+</body>
+
+</html>

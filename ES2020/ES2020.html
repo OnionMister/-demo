@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES2020</title>
+</head>
+
+<body>
+    <h1>查看源码和console</h1>
+    <a href="https://github.com/OnionMister/-demo.git" target="_blank">git地址点这里</a>
+    <ul>
+        <li>
+            ES2020：
+            <ol>
+                <li>私有化变量---通过在变量前加“#”来达到私有化</li>
+                <li>Promise.allSettled()---收集所有promise结果，无论是reject还是resolve</li>
+                <li>BigInt基础数据类型---整数后加n 或 使用BigInt函数（参数应是以n结尾的整数，否则超过16位丢失精度）</li>
+                <li>空值合并运算符---符号为：??。使用：【值1??值2】当且仅当【值1】为null或undefined时，结果才为【值2】</li>
+                <li>可选链运算符---符号：?.。作用：在深层次对象嵌套时，使用?.访问某层属性，如果之前某层遇到了null或undefined则会返回undefined而不会报错。</li>
+                <li>globalThis全局对象</li>
+                <li>动态载入：在不使用资源的时候不导入，待使用时再导入。<button id='btn'>点击这里动态引入</button></li>
+            </ol>
+        </li>
+    </ul>
+    <script>
+        // 1. 私有化变量---通过在变量前加“#”来达到私有化
+        console.group('1.私有化变量');
+        class Person {
+            #hobby = '我是私有属性hobby'; // 私有属性外部不可直接更改或使用
+            name = '我是共有属性name';
+            setHobby = function (hobby) {
+                // 对外暴露修改私有属性的方法，调用该方法修改后不影响其他实例
+                this.#hobby = hobby;
+            }
+            getHobby = function () {
+                // 对外暴露获取私有属性的方法
+                return this.#hobby;
+            }
+        }
+        const p = new Person();
+        console.log(p); // 结果：Person {name: "我是共有属性name", #hobby: "我是私有属性hobby", setHobby: ƒ, getHobby: ƒ}
+        // 如果使用“p.#hobby”   结果：Uncaught SyntaxError: Private field '#hobby' must be declared in an enclosing class
+        console.log(p.hobby); // 结果：undefined （因为p上没有hobby属性）
+        console.log(p.name); // 结果：我是共有属性name
+        console.log(p.getHobby()); // 结果：我是私有属性hobby
+        p.setHobby('新属性值');
+        console.log(p.getHobby()); // 结果：新属性值
+        console.groupEnd()
+
+        // 2.Promise.allSettled()---收集所有promise结果，无论是reject还是resolve
+        console.group('2.Promise.allSettled()');
+        // Promise之前就有all和race方法，
+        // race会并发执行多个请求，参数是请求数组，返回第一个请求成功的结果；
+        // all也会并发执行多个请求，参数也是请求数组，返回值为所有请求的结果，但如果有一个结果为reject则直接catch得不到其他正确的请求结果
+        // allSettled方法就是为了解决all方法中存在请求出错后拿不到其他请求结果的情况，allSettled始终收集所有请求结果，无论对错。
+        const p1 = new Promise((resolve, reject) => {
+            reject('第一个错了');
+        })
+        const p2 = new Promise((resolve, reject) => {
+            resolve('第二个对了');
+        })
+        const p3 = new Promise((resolve, reject) => {
+            resolve('第三个对了');
+        })
+        // race只返回最先响应的结果，无论对错。
+        Promise.race([p1, p2, p3]).then(res => {
+            console.log('race的请求成功：', res);
+        }).catch(err => {
+            console.log('race的请求失败：', err);
+        })
+        // all等待所有响应结束并返回结果，但如果有请求失败，则直接catch
+        Promise.all([p2, p1, p3]).then(res => {
+            console.log('all的请求成功：', res);
+        }).catch(err => {
+            console.log('all的请求失败：', err);
+        })
+        // allSettled收集所有响应结果并返回，无论对错。
+        Promise.allSettled([p1, p2, p3]).then(res => {
+            console.log("allSettled的请求成功：", res);
+        })
+        console.groupEnd()
+
+        // 3.BigInt基础数据类型---整数后加n  或  使用BigInt函数（参数应是以n结尾的整数，否则超过16位丢失精度）
+        // Js Number类型的数据表示的有效位数为16位，超过16位就会丢失精度。ES2020中加入新基础数据类型BigInt来弥补这一问题。
+        console.group('3.BigInt基础数据类型');
+        const num = 12345678901234567; // 常规number类型，17位整数
+        console.log(num) // 结果：12345678901234568  （丢失精度）
+        console.log(typeof num) // 结果：number
+        const btNum1 = 12345678901234567n; // 使用整数后加n的方式定义BigInt数据
+        console.log(btNum1) // 结果：12345678901234567n
+        console.log(typeof btNum1) // 结果：bigint
+        const btNum2 = BigInt(12345678901234567n); // 使用BigInt方法得到BigInt数据
+        console.log(btNum2) // 结果：12345678901234567n
+        console.log(typeof btNum2) // 结果：bigint
+        console.groupEnd()
+
+
+        // 4.空值合并运算符---符号为：??。使用：【值1??值2】当且仅当【值1】为null或undefined时，结果才为【值2】
+        // 在开发中我们常用短路运算符为某个变量赋值，防止值为假的情况。
+        // 例如：const type = data || '--';  译为：当data为假的时候type值为‘--’，但是有时候我们希望得到0、false这样的值，这种简化写法无法实现，我们只能迫不得已使用if或其他方法代替。空值合并运算符就是为了解决这一问题。
+        console.group('4.空值合并运算符');
+
+        function exp4Fun(data) {
+            const type1 = data || '--';
+            const type2 = data ?? '--';
+            console.log(`传递${data}时的结果，type1=${type1} ; type2=${type2}`);
+        }
+        exp4Fun(null);
+        exp4Fun(undefined);
+        exp4Fun(false);
+        exp4Fun(0);
+        exp4Fun('');
+        console.groupEnd()
+
+        // 5.可选链运算符---符号：?.。作用：在深层次对象嵌套时，使用?.访问某层属性，如果之前某层遇到了null或undefined则会返回undefined而不会报错。
+        // 在访问深层嵌套对象的属性时，我们必须通过表达式判断每层属性是否已声明赋值直到我们要使用的那一层。如果层次较深，判断表达式会很长。
+        // 如果某一层的属性未判断且恰巧为null或undefined则会导致程序崩溃。可选链运算用于解决这一问题。
+        const country = {
+            province: {
+                city: {
+                    town: {
+                        village: '圣地村'
+                    }
+                }
+            }
+        }
+        // 为了避免某一层及时null或undefined的情况，我们在使用exp5Obj下的village就不得不对之前的每一层做一个判断，防止出现错误，使用断路运算虽然简化了许多，但依然不友好。
+        const village1 = country && country.province && country.province.city && country.province.city
+            .town && country
+            .province.city.town.village;
+        // 下面是可选链运算的使用，如果某一层是null或undefined则会返回undefined 而不报错，
+        const village2 = country?.province?.city?.town?.village;
+
+        // 6.globalThis全局对象
+        // 由于不同平台的全局对象不统一，例如：浏览器下的全局对象获取可以通过window、self、frames，Web Workers中没有window要使用self，在node中只有global
+        // 这导致js代码多环境下工作需要使用不同的语法。由此产生了统一的globalThis
+        // 返回可用的全局对象
+        (function () {
+            // 没有globalThis之前-----------------------
+            function getGlobalObject() {
+                if (typeof self !== 'undefined') {
+                    return self;
+                }
+                if (typeof window !== 'undefined') {
+                    return window;
+                }
+                if (typeof global !== 'undefined') {
+                    return global;
+                }
+                throw new Error('cannot find the global object');
+            };
+            // 返回的全局对象是否可用 
+            if (typeof getGlobalObject().setTimeout !== 'function') {
+                // setTimeout()在该环境下不可用
+            }
+
+            // 有了globalThis之后-----------------------
+
+            if (typeof globalThis.setTimeout !== 'function') {
+                // setTimeout()在该环境下不可用
+            }
+        }());
+
+        // 7.动态载入：在不使用资源的时候不导入，待使用时再导入。
+        const exp7Btn = document.querySelector('#btn');
+        exp7Btn.onclick = async () => {
+            const add = await import('./math.js');
+            add(1, 2);
+        }
+        const doMath = async (num1, num2) => {
+            if (num1 && num2) {
+                const math = await import('./math.js');
+                console.log(math.add(5, 10));
+            };
+        };
+
+        doMath(4, 2);
+    </script>
+</body>
+
+</html>

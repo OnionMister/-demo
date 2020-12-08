@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>new的实现</title>
+</head>
+
+<body>
+    <h1>查看源码和console</h1>
+    <a href="https://github.com/OnionMister/-demo.git" target="_blank">git地址点这里</a>
+    <ul>
+        <li>
+            new特点：
+            <ol>
+                <li>返回一个对象，对象的__proto__指向构造函数的prototype</li>
+                <li>构造函数的this指向返回的对象</li>
+                <li>构造函数可以传递参数</li>
+            </ol>
+        </li>
+    </ul>
+    <script>
+        function Person(name = 'Li', age = '20') {
+            this.name = name;
+            this.age = age
+        }
+        Person.prototype.gender = 'male';
+        Person.prototype.say = function () {
+            console.log(`I'm ${this.name},age ${this.age},gender ${this.gender}.`);
+        }
+        // 自定义new，参数为若干个，第一个参数必须为函数。
+        const myNew = function (...arg) {
+            // 对参数进行解构，第一个参数未构造函数，剩余参数为构造函数的参数
+            const [fun, ...params] = arg;
+            if (typeof fun !== "function") {
+                return alert('第一个参数必须为函数');
+            }
+            // 创建一个对象
+            const obj = {};
+            // 对象的__proto__指向构造函数的prototype
+            obj.__proto__ = fun.prototype;
+            // 指明对象的构造函数
+            obj.__proto__.constructor = fun;
+            // 改变构造函数的this指向，并传递参数
+            fun.call(obj, ...params);
+            // 返回对象
+            return obj;
+        }
+        const amy = myNew(Person, 'Amy', '18');
+        const li = myNew(Person);
+        console.log(amy);
+        console.log(li);
+    </script>
+</body>
+
+</html>
