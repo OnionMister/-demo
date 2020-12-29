@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按需加载html</title>
+    <style>
+        img {
+            width: 200px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="" data-src="./img/1.png" alt="图1">
+    <img src="" data-src="./img/2.png" alt="图2">
+    <img src="" data-src="./img/3.jpg" alt="图3">
+    <button>f12看source，点击前不会加载图片</button>
+    <script>
+        const imgList = document.getElementsByTagName('img'),
+            btn = document.getElementsByTagName('button');
+        imgListLen = imgList.length;
+        btn[0].onclick = function () {
+            for (let i = 0; i < imgListLen; i++) {
+                const imgSrc = imgList[i].getAttribute('data-src');
+                imgList[i].style.display = 'inline';
+                imgList[i].setAttribute('src', imgSrc);
+            }
+        }
+    </script>
+</body>
+
+</html>

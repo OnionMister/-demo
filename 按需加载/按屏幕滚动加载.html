@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按需加载html</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        div {
+            height: 100vh;
+        }
+
+        img {
+            width: 100%;
+        }
+
+        #tip {
+            position: -webkit-sticky;
+            position: sticky;
+            height: 60px;
+            background: #ff7300;
+            top: 0;
+        }
+
+        #load {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id='tip'>向下滚动，每次加载两张图,f12查看source加载的img数量变化</h1>
+    <div><img src="./img/1.png" alt="图片1"></div>
+    <div><img src="./img/2.png" alt="图片2"></div>
+
+    <script>
+        const elArr = [
+                "<div><img src='./img/3.jpg' alt='图片3'></div>",
+                "<div><img src='./img/4.png' alt='图片4'></div>",
+                "<div><img src='./img/5.jpg' alt='图片5'></div>",
+                "<div><img src='./img/6.jpg' alt='图片6'></div>"
+            ],
+            elArrLen = elArr.length;
+        let nums = 1; // 加载次数
+        window.onscroll = function () {
+            const sl = window.scrollY; // 窗口滚动距离
+            if (sl >= nums * 800) { // 将滚动完1屏时加载后续的图片
+                if (nums > elArrLen / 2) { // 每次加载2张，如果加载次数超出则结束
+                    console.log('结束了')
+                    return;
+                }
+                nums++;
+                document.body.innerHTML += elArr.splice(0, 2); // 加入到body中
+            }
+        }
+    </script>
+</body>
+
+</html>

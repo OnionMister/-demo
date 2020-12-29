@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>事件绑定兼容封装，addEventListener兼容ie11及以上，attachEvent兼容ie11一下（无捕获）</div>
+    <button id='btn'>不同浏览器点我</button>
+    <script>
+        var btn = document.getElementById('btn');
+
+        function handle(ele, type, fun, option) {
+            if (window.addEventListener) {
+                ele.addEventListener(type, fun, option);
+            } else if (window.attachEvent) {
+                ele.attachEvent('on' + type, fun);
+            }
+        }
+        handle(btn, 'click', function (e) {
+            console.log(e);
+            console.log(this);
+            console.log('我被点击了');
+        })
+    </script>
+</body>
+
+</html>

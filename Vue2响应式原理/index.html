@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue2响应式原理</title>
+</head>
+
+<body>
+    <div id='app'>
+        <h1>插值表达式：{{person.name}}---{{person.age}}</h1>
+        <div>插值表达式：{{msg}}</div>
+        <p v-text="msg"></p>
+        <ul>
+            <li>文本1</li>
+            <li>插值表达式：{{msg}}</li>
+            <li>文本2</li>
+        </ul>
+        <div v-html="htmlMsg"></div>
+        <input type="text" v-model="person.age">
+        <input type="text" v-model="msg">
+        插值表达式：{{person.name}}
+        <button v-on:click="handle">v-on绑定事件→点我</button>
+        <button @click="handle">@绑定事件→点我</button>
+        <div v-bind:title="msg">v-bind绑定title</div>
+        <div :title="msg">:绑定title</div>
+        {{msg}}
+    </div>
+    <script src="./Watcher.js"></script>
+    <script src="./Observer.js"></script>
+    <script src="./Compile.js"></script>
+    <script src="./MVue.js"></script>
+    <script>
+        let vm = new MVue({
+            el: '#app',
+            data: {
+                person: {
+                    name: '张三',
+                    age: 19
+                },
+                htmlMsg: '<strong><i>我是v-html</i></strong>',
+                msg: 'vue双向绑定',
+            },
+            methods: {
+                handle: function () {
+                    console.log(this)
+                    // this.person.name='李四'
+                    alert('点击事件触发！我将修改数据');
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

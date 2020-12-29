@@ -40,8 +40,6 @@
             const obj = {};
             // 对象的__proto__指向构造函数的prototype
             obj.__proto__ = fun.prototype;
-            // 指明对象的构造函数
-            obj.__proto__.constructor = fun;
             // 改变构造函数的this指向，并传递参数
             fun.call(obj, ...params);
             // 返回对象

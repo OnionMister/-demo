@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按需加载html</title>
+    <style>
+        #box img{
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="box"></div>
+    <button>f12看source，点击前不会加载图片</button>
+    <script id='load' type='text/x-template'>
+        <img src="./img/1.png" alt="图1">
+        <img src="./img/2.png" alt="图2">
+        <img src="./img/3.jpg" alt="图3">
+    </script>
+    <script>
+        const btn = document.getElementsByTagName('button')[0];
+        const load = document.getElementById('load');
+        const box = document.getElementById('box');
+        btn.onclick=function(){
+            box.innerHTML = load.innerHTML;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扩散圆圈loading效果</title>
+    <style>
+        #circle {
+            position: relative;
+            height: 124px;
+        }
+
+        .circle-base {
+            width: 120px;
+            height: 120px;
+            border: 2px solid #00cdec;
+            border-radius: 50%;
+            transform: scale(0.01);
+            position: absolute;
+        }
+
+        .circle-ripple1 {
+            animation: ripple 4500ms 225ms infinite;
+        }
+
+        .circle-ripple2 {
+            animation: ripple 4500ms 1575ms infinite;
+        }
+
+        @keyframes ripple {
+            100% {
+                opacity: 0;
+                transform: scale(1);
+            }
+        }
+
+        #round {
+            position: relative;
+            height: 124px;
+        }
+
+        .round-base {
+            width: 120px;
+            height: 120px;
+            background-color: #f00;
+            border-radius: 50%;
+            transform: scale(0.01);
+            position: absolute;
+        }
+
+        .round-ripple1 {
+            animation: ripple 4500ms 225ms infinite;
+        }
+
+        .round-ripple2 {
+            animation: ripple 4500ms 1575ms infinite;
+        }
+        .round-ripple3 {
+            animation: ripple 4500ms 2895ms infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="circle">
+        <div class="circle-base circle-ripple1"></div>
+        <div class="circle-base circle-ripple2"></div>
+    </div>
+    <div id="round">
+        <div class="round-base round-ripple1"></div>
+        <div class="round-base round-ripple2"></div>
+        <div class="round-base round-ripple3"></div>
+    </div>
+</body>
+
+</html>

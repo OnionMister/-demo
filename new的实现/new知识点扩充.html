@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>new知识点扩充</title>
+</head>
+
+<body>
+    <article>当我们使用构造函数new对象的时候，构造函数的this是指向是实例化对象的。</article>
+    <article>但是再严格模式（use strict）下function的this是undefined，这导致，不使用new构造函数直接执行会报错</article>
+    <article>解决方案是在构造函数内部判断一下，this是否是构造函数的实例(利用instanceof)，如果不是说明没有使用new，应该返回一个实例化对象，避免报错.</article>
+    <h1>查看源码和控制台</h1>
+    <script>
+        // 启动严格模式
+        "use strict"
+        // 构造函数
+        function Person(name, age) {
+            if (!(this instanceof Person)) {
+                return new Person(name, age);
+            }
+            this.name = name;
+            this.age = age;
+        }
+        const p1 = new Person('张三', 18);
+        console.log(p1);
+        console.log(Person('李四', 20));
+    </script>
+</body>
+
+</html>
