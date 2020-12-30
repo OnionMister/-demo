@@ -5,26 +5,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        #box1 {
+            width: 200px;
+            height: 200px;
+            background-color: #f0f;
+        }
+
+        #box2 {
+            width: 100px;
+            height: 100px;
+            background-color: #ff0;
+        }
+    </style>
 </head>
 
 <body>
-    <div>事件绑定兼容封装，addEventListener兼容ie11及以上，attachEvent兼容ie11一下（无捕获）</div>
-    <button id='btn'>不同浏览器点我</button>
+    <div>事件绑定兼容封装，addEventListener兼容ie9及以上，attachEvent兼容ie9以下（无捕获）</div>
+    <fieldset>
+        <legend>初级封装，每次‘调用封装’都会if判断</legend>
+        <button id='btn1'>不同浏览器点我</button>
+        <button id='btn2'>不同浏览器点我</button>
+    </fieldset>
+    <fieldset>
+        <legend>惰性函数封装，只有第一次‘调用封装’才会执行if</legend>
+        <button id='btn3'>不同浏览器点我</button>
+        <button id='btn4'>不同浏览器点我</button>
+    </fieldset>
+    <fieldset>
+        <legend>闭包封装，只有第一次‘调用封装’才会执行if</legend>
+        <button id='btn5'>不同浏览器点我</button>
+        <button id='btn6'>不同浏览器点我</button>
+    </fieldset>
+    <div id='box1'>
+        <div id='box2'>捕获测试，使用的是【惰性函数封装】，先外层box1，后内存box2（IE9下无捕获）</div>
+    </div>
     <script>
-        var btn = document.getElementById('btn');
+        var btn1 = document.getElementById('btn1');
+        var btn2 = document.getElementById('btn2');
+        var btn3 = document.getElementById('btn3');
+        var btn4 = document.getElementById('btn4');
+        var btn5 = document.getElementById('btn5');
+        var btn6 = document.getElementById('btn6');
+        var box1 = document.getElementById('box1');
+        var box2 = document.getElementById('box2');
 
+        // 初级版（每次 调用绑定 都会进行if判断）
         function handle(ele, type, fun, option) {
             if (window.addEventListener) {
+                // ie不支持默认参数,option设置默认参数false
+                option = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+                console.log('每次 调用绑定 都会判断if')
                 ele.addEventListener(type, fun, option);
             } else if (window.attachEvent) {
+                console.log('每次 调用绑定 都会判断if')
                 ele.attachEvent('on' + type, fun);
             }
         }
-        handle(btn, 'click', function (e) {
-            console.log(e);
-            console.log(this);
+        console.group('初级封装测试-------------------------')
+        handle(btn1, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
             console.log('我被点击了');
         })
+
+        handle(btn2, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
+            console.log('我被点击了');
+        })
+        console.groupEnd()
+
+        // 惰性函数（只有第一次调用绑定）----------------------------------
+        function lazyHandle(ele, type, fun, option) {
+            if (window.addEventListener) {
+                console.log('每次 调用绑定 只会判断if一次');
+                lazyHandle = function (ele, type, fun, option) {
+                    // ie不支持默认参数,option设置默认参数false
+                    option = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+                    ele.addEventListener(type, fun, option);
+                }
+            } else if (window.attachEvent) {
+                console.log('每次 调用绑定 只会判断if一次');
+                lazyHandle = function (ele, type, fun) {
+                    ele.attachEvent('on' + type, fun);
+                }
+            }
+            return lazyHandle(ele, type, fun, option);
+        }
+        console.group('惰性函数封装测试-------------------------')
+        lazyHandle(btn3, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
+            console.log('我被点击了');
+        })
+
+        lazyHandle(btn4, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
+            console.log('我被点击了');
+        })
+        // 捕获测试-----
+        lazyHandle(box1, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
+            console.log('我被点击了box1');
+        }, true);
+        lazyHandle(box2, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
+            console.log('我被点击了box2');
+        }, true);
+        console.groupEnd()
+
+
+        // 立即执行函数闭包封装（只有第一次调用绑定）-------
+        console.group('立即执行函数闭包封装------------------')
+        var seniorHandle = (function () {
+            if (window.addEventListener) {
+                console.log('每次 调用绑定 只会判断if一次');
+                return function (ele, type, fun, option) {
+                    // ie不支持默认参数,option设置默认参数false
+                    option = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+                    ele.addEventListener(type, fun, option);
+                }
+            } else if (window.attachEvent) {
+                console.log('每次 调用绑定 只会判断if一次');
+                return function (ele, type, fun) {
+                    ele.attachEvent('on' + type, fun);
+                }
+            }
+        }());
+        seniorHandle(btn5, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
+            console.log('我被点击了');
+        })
+
+        seniorHandle(btn6, 'click', function (e) {
+            console.log('事件对象：', e);
+            console.log('this指向：', this);
+            console.log('我被点击了');
+        })
+        console.groupEnd()
     </script>
 </body>
 
