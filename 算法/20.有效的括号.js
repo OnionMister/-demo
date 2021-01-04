@@ -8,9 +8,6 @@ const isValid = function (brackets) {
         if (brackets[i] === '(' || brackets[i] === '[' || brackets[i] === '{') {
             arr.push(brackets[i]);
         } else if (brackets[i] === ')' || brackets[i] === ']' || brackets[i] === '}') {
-            if (brackets[i] === 0) {
-                return false;
-            }
             t = arr[arr.length - 1];
             if ((t === '(' && brackets[i] === ')') || (t === '[' && brackets[i] === ']') || (t === '{' && brackets[i] === '}')) {
                 arr.pop();
