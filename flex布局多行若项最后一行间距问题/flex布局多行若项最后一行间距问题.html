@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flex布局多行若项最后一行间距问题</title>
+    <style>
+        fieldset {
+            width: 400px;
+            margin: 20px auto;
+        }
+
+        .content {
+            width: 400px;
+            border: 1px solid #333;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .content2::after {
+            content: '';
+            flex-grow: 1;
+            display: block;
+        }
+
+        .content section {
+            border: 1px solid blue;
+            border-radius: 5px;
+            padding: 3px 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <fieldset>
+        <legend>处理前</legend>
+        <article class="content">
+            <section>每一项1*1</section>
+            <section>每一项2*2</section>
+            <section>每一项3*3</section>
+            <section>每一项4*4</section>
+            <section>每一项5*5</section>
+            <section>每一项6*6</section>
+            <section>每一项7*7</section>
+            <section>每一项8*8</section>
+            <section>每一项9*9</section>
+            <section>每一项10*10</section>
+        </article>
+    </fieldset>
+    <fieldset>
+        <legend>处理后</legend>
+        <article class="content content2">
+            <section>每一项1*1</section>
+            <section>每一项2*2</section>
+            <section>每一项3*3</section>
+            <section>每一项4*4</section>
+            <section>每一项5*5</section>
+            <section>每一项6*6</section>
+            <section>每一项7*7</section>
+            <section>每一项8*8</section>
+            <section>每一项9*9</section>
+            <section>每一项10*10</section>
+        </article>
+    </fieldset>
+</body>
+
+</html>
