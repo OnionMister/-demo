@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>敏感词过滤</title>
+    <style>
+        #entryArea{
+            width:300px;
+            height: 200px;
+        }
+        #informArea{
+            width: 100%;
+            min-height: 200px;
+            border:1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <fieldset>
+        <legend>输入区域</legend>
+        <textarea id='entryArea' name="" id="" cols="30" rows="10"></textarea>
+        <button onclick='handle()'>提交</button>
+    </fieldset>
+    <fieldset>
+        <legend>过滤后的消息</legend>
+        <div id='informArea'></div>
+    </fieldset>
+    <script>
+        var entryArea = document.getElementById('entryArea'),
+        informArea = document.getElementById('informArea'),
+        arr = [/靠/g, /操/g, /tmd/ig, /nm/ig];
+        function handle() {
+            var entryText = entryArea.value;
+            for(var i = 0; i < arr.length; i++) {
+                entryText = entryText.replace(arr[i],'*');
+            }
+            informArea.innerHTML = entryText;
+            entryArea.value = '';
+        }
+    </script>
+</body>
+</html>
